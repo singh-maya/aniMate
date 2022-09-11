@@ -1,4 +1,4 @@
-#AniMate##
+#AniMate#
 
 AniMate generates anime recommendations using our recommendation algorithm  made with 
 python and the _GraphQL_ api for Anilist. 
