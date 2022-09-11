@@ -1,14 +1,7 @@
-# first ask the user for their username
-# get the user's information from their username including ID
 import json
 import requests
 
-
-def userLogin():
-    username = input("What is your username on AniList")
-    return username
-
-
+# gets the user statistics using their username
 def getUserStats(username):
     query = """\
        query ($name: String) 
@@ -62,7 +55,7 @@ def getUserStats(username):
     userStats = json.loads(response.text)
     return userStats
 
-
+# gets the user's anime list from the id found in get user list
 def getUserAnimeList(userID):
     query = """\
       query ($user_id: Int, $page: Int = 1, $per_page: Int = 25) 
@@ -211,9 +204,7 @@ def getUserAnimeList(userID):
     # print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
     return file
 
-
+# gets the user ID
 def getUserID(username):
     userID = getUserStats(username)["data"]["User"]["id"]
     return userID
-
-

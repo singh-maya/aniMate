@@ -1,17 +1,11 @@
 import json
 import random
-import requests
-
+import streamlit as st
+from itertools import cycle
 import login
 import animeInfo
 
-# randomly select one anime from the user list
-# take the genre from the anime and extract 10 anime from the list
-# go through each anime -> if they have the same tags add 1 point if they have the same studio add 1 point
-# the top2 anime with the most points gets chosen to show as a rec
-# the next top anime would be shown
-
-
+# given the user's anime list, choose a random anime to pull the recommendations from
 def randomChooseAnime(animeList):
     animeArray = []
     for x in animeList.keys():
@@ -20,11 +14,12 @@ def randomChooseAnime(animeList):
     return chosenAnime
 
 
+# with the chosen anime, go to that genre and pull the number of anime the user wants recommended
 def getAnimeFromGenre(animeList, chosenAnime, numberOfAnime):
     genres = animeList[chosenAnime][1]
     chosenGenre = random.choice(genres)
 
-    animeByGenre = open("get_anime_query")
+    animeByGenre = open("get_anime_query.json")
     data = json.load(animeByGenre)
 
     listOfAnime = data[chosenGenre.lower()]
@@ -33,6 +28,7 @@ def getAnimeFromGenre(animeList, chosenAnime, numberOfAnime):
     return listOfAnime
 
 
+# the algorithm that determines what anime to recommend based on a points system
 def recommendationAlgorithm(listOfAnime, username):
     top10Anime = listOfAnime
     animeStudio = dict()
@@ -67,14 +63,10 @@ def recommendationAlgorithm(listOfAnime, username):
     userStudios = animeInfo.getStudio(login.getUserAnimeList(login.getUserID(username)))
     usersTags = animeInfo.getTags(login.getUserStats(username))
 
-    #print(animeStudio)
-    #print(tags)
-    #print(userStudios)
-    #print(usersTags)
-
     # algorithm: animeScore = studioMatching + tagMatching
     # tagMatching = tagNum / 2
 
+    # initalizing the dicionary
     animeRanking = dict()
     for x in animeStudio.keys():
         animeRanking[x] = 0
@@ -89,24 +81,32 @@ def recommendationAlgorithm(listOfAnime, username):
     for x in usersTags.keys():
         for key, value in tags.items():
             if x in value:
-                importance = usersTags[x] / 2
+                importance = usersTags[x]
                 currentRanking = animeRanking[key] + importance
                 animeRanking[key] = currentRanking
 
     file = open("anime_by_id.json")
     animeName = json.load(file)
 
-    idToNameDict = dict()
-    for x in animeRanking.keys():
-        if animeName[x]["name_english"] is None:
-            idToNameDict[animeName[x]["name_romaji"]] = animeRanking[x]
+    animeRanking = sorted(animeRanking.items(), key=lambda x: x[1], reverse=True)
+
+    # loads the images with the anime name
+    animeImagewWithName = dict()
+    for anime in animeRanking:
+        image = animeName[anime[0]]["cover_image"]
+        if animeName[anime[0]]["name_english"] is None:
+            animeImagewWithName[animeName[anime[0]]["name_romaji"]] = image
         else:
-            idToNameDict[animeName[x]["name_english"]] = animeRanking[x]
+            animeImagewWithName[animeName[anime[0]]["name_english"]] = image
 
-    print(idToNameDict)
+    # loads the image in streamlit front end
+    filteredImages = list(animeImagewWithName.values())
+    caption = list(animeImagewWithName.keys())
+    cols = cycle(st.columns(4))
+    for idx, filteredImage in enumerate(filteredImages):
+        next(cols).image(filteredImage, width=150, caption=caption[idx])
 
 
-def algo(username):
+def algo(username, numOfRecs):
     animeList = animeInfo.getUserAnime(login.getUserAnimeList(login.getUserID(username)))
-    numberOfAnime = input("How many shows do you want recommended? ")
-    recommendationAlgorithm(getAnimeFromGenre(animeList, randomChooseAnime(animeList), int(numberOfAnime)), username)
+    recommendationAlgorithm(getAnimeFromGenre(animeList, randomChooseAnime(animeList), int(numOfRecs)), username)

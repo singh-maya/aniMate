@@ -2,7 +2,7 @@ import json
 import login
 import requests
 
-
+# gets the studios of the shows from the user's anime list
 def getStudio(animeList):
     studios = set()
     for s in animeList["data"]["anime"]["mediaList"]:
@@ -12,6 +12,7 @@ def getStudio(animeList):
     return studios
 
 
+# gets the tags of the shows from the user's anime list
 def getTags(userStats):
     tags = dict()
     info = userStats["data"]["User"]["statistics"]["anime"]["tags"]
@@ -19,12 +20,10 @@ def getTags(userStats):
         tagName = x["tag"]["name"]
         tagCount = x["count"]
         tags[tagName] = tagCount
-    # print(info)
-    # print(tags)
 
     return tags
 
-
+# gets the genre from the user's anime list
 def getGenre(animeList):
     genre_list = []
     genre_dict = {}
@@ -42,6 +41,7 @@ def getGenre(animeList):
     return genre_dict
 
 
+# gets the anime from the user's anime list
 def getUserAnime(animeList):
     userAnimeList = dict()
     for anime in animeList["data"]["anime"]["mediaList"]:
@@ -51,7 +51,7 @@ def getUserAnime(animeList):
         userAnimeList[animeName] = [animeID, animeGenre]
     return userAnimeList
 
-
+# gets the studio from a given anime
 def getAnimeStudio(animeID):
     query = """\
             query ($id: Int) {
@@ -88,7 +88,7 @@ def getAnimeStudio(animeID):
 
     return studios
 
-
+# get the tags from a specific anime
 def getAnimeTag(id):
     query = """\
     query ($id: Int) {
@@ -99,12 +99,12 @@ def getAnimeTag(id):
         }
     }
     """
-    # Define our query variables and values that will be used in the query request
+
     variables = {
         'id': id
     }
     url = 'https://graphql.anilist.co'
-    # Make the HTTP Api request
+
     response = requests.post(
         url,
         json={'query': query, 'variables': variables}
