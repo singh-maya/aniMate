@@ -1,4 +1,4 @@
-**AniMate**
+#AniMate##
 
 AniMate generates anime recommendations using our recommendation algorithm  made with 
 python and the _GraphQL_ api for Anilist. 
@@ -16,4 +16,5 @@ genre by going through a json file that
 contains the data. The algorithm first 
 generates a list of genre-based random anime, after which it sorts the list by how many of the generated anime in each category match the user's favorites in terms of studio and tags. It then produces the sorted recommendations by the recommendation algorithm
 <img src="https://media.discordapp.net/attachments/1014923520649740372/1018521902412734496/unknown.png?width=606&height=532">
-**Credits:** Aryan Gupta, Justin Nunag, Priyal Patel, Maya Singh
+**Credits:**   
+Aryan Gupta, Justin Nunag, Priyal Patel, Maya Singh
